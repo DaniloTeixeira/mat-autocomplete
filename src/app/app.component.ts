@@ -1,35 +1,67 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, NgFor } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { Observable, debounceTime, filter, map, startWith } from 'rxjs';
+import { citiesOfBrazil } from './data/cidades-mock';
+import { City } from './models/City';
+import { CityService } from './services';
+import { removeAccents } from './utils/removeAccents';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center" class="content">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <span style="display: block">{{ title }} app is running!</span>
-      <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-    </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    
-  `,
-  styles: [],
+  imports: [
+    NgFor,
+    AsyncPipe,
+    FormsModule,
+    ReactiveFormsModule,
+
+    MatInputModule,
+    MatFormFieldModule,
+    MatAutocompleteModule
+  ],
+  templateUrl: 'app.component.html',
+  styleUrls: [ 'app.component.scss' ],
+  providers: [ CityService ]
 })
 export class AppComponent {
-  title = 'mat-autocomplete-example';
+  private cityService = inject(CityService);
+
+  protected cities = citiesOfBrazil;
+  protected myControl = new FormControl('');
+  protected filteredCities$!: Observable<City[]>;
+
+  ngOnInit() {
+    this.getAllCities();
+    this.setfilteredCities();
+  }
+
+  displayFn(city: City): string {
+    return city?.name || '';
+  }
+
+  private filterCities(value: string): City[] {
+    const filterValue = removeAccents(value)!.toLowerCase();
+
+    return this.cities.filter(option => removeAccents(option.name).toLowerCase().includes(filterValue));
+  }
+
+  private getAllCities(): void {
+    this.cityService.getCities().subscribe(cities => {
+      this.cities = cities;
+    });
+  }
+
+  private setfilteredCities(): void {
+    this.filteredCities$ = this.myControl.valueChanges.pipe(
+      filter((value) => typeof value === 'string'),
+      debounceTime(500),
+      startWith(''),
+      map(value => this.filterCities(value as string)),
+    );
+  }
 }

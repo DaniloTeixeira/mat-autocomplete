@@ -1,0 +1,24 @@
+
+.example-form {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+}
+
+.form-field {
+  width: 500px;
+  padding: 4rem 4rem 2.5rem 4rem;
+  border: 1px solid #9c27b0;
+  border-radius: 5px;
+  background-color: rgba(0,0,0,0.1);
+  box-shadow: 5px 5px 10px #747474;
+  transition: .2s ease-in-out;
+}
+
+h1 {
+  font-size: 3rem;
+  padding: 2rem;
+  color: #9c27b0;
+  text-shadow: 2px 2px 3px #656565;
+}

@@ -1,0 +1,14 @@
+<form class="example-form">
+  <div>
+    <h1>Mat-Autocomplete</h1>
+  </div>
+  <mat-form-field class="form-field">
+    <mat-label>Cidade</mat-label>
+    <input type="text" placeholder="Digite a cidade" matInput [formControl]="myControl" [matAutocomplete]="auto">
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
+      <mat-option *ngFor="let city of (filteredCities$ | async)" [value]="city">
+        {{city.name}} 
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+</form>
