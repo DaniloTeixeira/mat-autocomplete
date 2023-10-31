@@ -6,9 +6,9 @@
     <div class="form-field-container">
      <h2>Estados do Brasil</h2>
       <mat-form-field class="form-field-content" color="accent">
-        <mat-label>Estado</mat-label>
+        <mat-label>Digite o Estado</mat-label>
         <mat-spinner [diameter]="30" color="accent" *ngIf="searchingStates"></mat-spinner>
-        <input type="text" placeholder="Digite o Estado" matInput [formControl]="myControl" [matAutocomplete]="auto">
+        <input type="text" matInput [formControl]="myControl" [matAutocomplete]="auto">
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
           <mat-option *ngFor="let state of (filteredStates$ | async)" [value]="state">
             {{ state.name }} 
