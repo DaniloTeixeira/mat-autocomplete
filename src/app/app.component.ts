@@ -1,67 +1,75 @@
-import { AsyncPipe, NgFor } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { Observable, debounceTime, filter, map, startWith, tap } from 'rxjs';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Observable, debounceTime, filter, map, startWith } from 'rxjs';
-import { citiesOfBrazil } from './data/cidades-mock';
-import { City } from './models/City';
-import { CityService } from './services';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { statesOfBrazil } from './data/states-of-brazil';
+import { State } from './models/State';
+import { StateService } from './services/state';
 import { removeAccents } from './utils/removeAccents';
+
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    NgFor,
     AsyncPipe,
     FormsModule,
+    CommonModule,
     ReactiveFormsModule,
 
     MatInputModule,
     MatFormFieldModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: 'app.component.html',
-  styleUrls: [ 'app.component.scss' ],
-  providers: [ CityService ]
+  styleUrls: ['app.component.scss'],
+  providers: [StateService]
 })
 export class AppComponent {
-  private cityService = inject(CityService);
+  private stateService = inject(StateService);
 
-  protected cities = citiesOfBrazil;
+  protected states = statesOfBrazil;
+  protected searchingStates = false;
   protected myControl = new FormControl('');
-  protected filteredCities$!: Observable<City[]>;
+  protected filteredStates$!: Observable<State[]>;
 
   ngOnInit() {
-    this.getAllCities();
-    this.setfilteredCities();
+    this.getAllStates();
+    this.setFilteredStates();
   }
 
-  displayFn(city: City): string {
-    return city?.name || '';
+  displayFn(state: State): string {
+    return state?.name || '';
   }
 
-  private filterCities(value: string): City[] {
+  private filterCities(value: string): State[] {
     const filterValue = removeAccents(value)!.toLowerCase();
 
-    return this.cities.filter(option => removeAccents(option.name).toLowerCase().includes(filterValue));
+    return this.states.filter(option => removeAccents(option.name).toLowerCase().includes(filterValue));
   }
 
-  private getAllCities(): void {
-    this.cityService.getCities().subscribe(cities => {
-      this.cities = cities;
+  private getAllStates(): void {
+    this.stateService.getCities().subscribe(states => {
+      this.states = states;
     });
   }
 
-  private setfilteredCities(): void {
-    this.filteredCities$ = this.myControl.valueChanges.pipe(
+  private setFilteredStates(): void {
+    this.filteredStates$ = this.myControl.valueChanges.pipe(
       filter((value) => typeof value === 'string'),
+      tap(() => this.searchingStates = true),
       debounceTime(500),
       startWith(''),
       map(value => this.filterCities(value as string)),
+      tap(() => this.searchingStates = false)
     );
   }
 }

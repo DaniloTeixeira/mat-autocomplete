@@ -1,14 +1,20 @@
-<form class="example-form">
-  <div>
-    <h1>Mat-Autocomplete</h1>
-  </div>
-  <mat-form-field class="form-field">
-    <mat-label>Cidade</mat-label>
-    <input type="text" placeholder="Digite a cidade" matInput [formControl]="myControl" [matAutocomplete]="auto">
-    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
-      <mat-option *ngFor="let city of (filteredCities$ | async)" [value]="city">
-        {{city.name}} 
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
+<form>
+    <div class="header-container">
+      <h1>Mat-Autocomplete</h1>
+    </div>
+  
+    <div class="form-field-container">
+     <h2>Estados do Brasil</h2>
+      <mat-form-field class="form-field-content" color="accent">
+        <mat-label>Estado</mat-label>
+        <mat-spinner [diameter]="30" color="accent" *ngIf="searchingStates"></mat-spinner>
+        <input type="text" placeholder="Digite o Estado" matInput [formControl]="myControl" [matAutocomplete]="auto">
+        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
+          <mat-option *ngFor="let state of (filteredStates$ | async)" [value]="state">
+            {{ state.name }} 
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+   </div>
 </form>
+
